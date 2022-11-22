@@ -8,6 +8,23 @@
  */
 
 include 'model.php';
+/* Connect to DB */
+$db = connect_db('localhost', 'ddwt22_week1', 'ddwt22','ddwt22');
+/* Counting series */
+$series_num = count_series($db);
+/* Getting data from DB */
+$series_arr = get_series($db);
+/* Adding data to HTML table */
+$table_exp = get_series_table($series_arr);
+/* Landing page */
+if (new_route('/', 'get')) {
+    /* Page info */
+    $page_title = 'Home';
+    /* Page content */
+    $page_content = 'Hello World.';
+/* Choose Template */
+include use_template('main');
+}
 
 /* Landing page */
 if (new_route('/DDWT22/week1/', 'get')) {
@@ -52,7 +69,14 @@ elseif (new_route('/DDWT22/week1/overview/', 'get')) {
     $right_column = use_template('cards');
     $page_subtitle = 'The overview of all series';
     $page_content = 'Here you find all series listed on Series Overview.';
-    $left_content = '
+
+    /* automatically generating a table */
+    if (!empty($table_exp)){
+        $left_content = $table_exp;
+    }
+    else{
+        /* adding a pre-made table if no database is connected */
+        $left_content = '
     <table class="table table-hover">
         <thead>
         <tr>
@@ -73,6 +97,7 @@ elseif (new_route('/DDWT22/week1/overview/', 'get')) {
 
         </tbody>
     </table>';
+    }
 
     /* Choose Template */
     include use_template('main');
