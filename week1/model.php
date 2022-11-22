@@ -118,3 +118,67 @@ function get_error($feedback){
             '.$feedback['message'].'
         </div>';
 }
+
+function connect_db($host, $db, $user, $pass){
+    $charset = 'utf8mb4';
+    $dsn = "mysql:host=$host;dbname=$db;charset=$charset";
+    $options = [
+        PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+        PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+    ];
+    try {
+        $pdo = new PDO($dsn, $user, $pass, $options);
+    } catch (PDOException $e) {
+        echo sprintf("Failed to connect. %s",$e->getMessage());
+    }
+    return $pdo;
+}
+
+function count_series($pdo){
+    /* Check if book already exists */
+    $stmt = $pdo->prepare('SELECT * FROM series');
+    $stmt -> execute();
+    $stmt -> fetchAll();
+    return $stmt->rowCount();
+}
+
+function get_series($pdo){
+    $series_arr = array();
+    $stmt = $pdo->prepare('SELECT * FROM series');
+    $stmt -> execute();
+    $series = $stmt -> fetchAll();
+    foreach ($series as $key => $value){
+        foreach ($value as $user_key => $user_input){
+            $series_arr[$key][$user_key] = htmlspecialchars($user_input);
+        }
+    }
+    return $series_arr;
+}
+
+function get_series_table($series_arr){
+    $table_exp =
+        '
+<table class="table table-hover">
+<thead
+<tr>
+<th scope="col">Series</th>
+<th scope="col"></th>
+</tr>
+</thead>
+<tbody>';
+    foreach($series_arr as $key => $value){
+        $table_exp .=
+            '
+<tr>
+<th scope="row">'.$value['name'].'</th>
+<td><a href=“/DDWT22/week1/series/?series_id='.$value['id'].'" role="button" class="btn btn-primary">More info</a></td>
+</tr>
+';
+}
+$table_exp .=
+'
+</tbody>
+</table>
+';
+return $table_exp;
+}
