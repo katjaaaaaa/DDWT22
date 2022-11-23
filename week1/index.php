@@ -184,6 +184,9 @@ elseif (new_route('/DDWT22/week1/add/', 'post')) {
     $submit_btn = 'Add Series';
     $form_action = '/DDWT22/week1/add/';
 
+    $post_arr = $_POST;
+    $error_msg = add_series($db, $post_arr);
+
     include use_template('new');
 }
 

@@ -193,3 +193,47 @@ $table_exp .=
 ';
 return $table_exp;
 }
+
+function add_series($pdo, $post_arr){
+
+    $message = array('type' => 'success', 'message' => 'Series was successfully created.');
+    $error = array('type' => 'danger', 'message' => "Series wasn't added. There was an error.");
+    /* check if series already exists in database */
+    $stmt = $pdo->prepare('SELECT * FROM series WHERE name = ?');
+    $stmt->execute([$post_arr["s_name"]]);
+    $series = $stmt->rowCount();
+
+    if ($series) {
+        return array('type' => 'danger', 'message' => "Added series already exists in the database.");
+    }
+    elseif (
+        /* Check if all fields are not empty */
+        empty($post_arr["s_name"]) or
+        empty($post_arr["creators"]) or
+        empty($post_arr["num_seasons"]) or
+        empty($post_arr["s_abstract"])
+    ){
+        return array('type' => 'danger', 'message' => "Some of the fields are not empty");
+    }
+    elseif (!is_numeric($post_arr['num_seasons'])){
+        /* Check if num_seasons's type is a number */
+        return array('type' => 'danger', 'message' => "Number of seasons is not numeral.");
+    }
+    else{
+        /* Add new series */
+        $stmt = $pdo->prepare("INSERT INTO series (name, creator, seasons, abstract) VALUES (?, ?, ?, ?)");
+        $stmt->execute([
+            $post_arr["s_name"],
+            $post_arr["creators"],
+            $post_arr["num_seasons"],
+            $post_arr["s_abstract"]
+        ]);
+        $inserted = $stmt->rowCount();
+        if ($inserted == 1) {
+            return $message;
+        }
+        else {
+            return array('type' => 'danger', 'message' => "Series wasn't added. There was an error.");
+        }
+    }
+}
