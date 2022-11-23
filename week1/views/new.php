@@ -37,30 +37,31 @@
                         <div class="form-group row" >
                             <label for="exampleInputName" class="col-sm-2 col-form-label">Name</label>
                             <div class="col-sm-10">
-                                <input type="text" class="form-control" id="exampleInputName" name="s_name" placeholder="Enter the name of the series">
+                                <input type="text" class="form-control" value ="<?php if (isset($series_info)){echo $series_info['name'];} ?>" id="exampleInputName" name="s_name" placeholder="Enter the name of the series">
                             </div>
                         </div>
                         <div class="form-group row">
                             <label for="exampleInputCreator" class="col-sm-2 col-form-label">Creators</label>
                             <div class="col-sm-10">
-                                <input type="text" class="form-control" id="exampleInputCreator" name="creators" placeholder="Enter the names of creators">
+                                <input type="text" class="form-control" value ="<?php if (isset($series_info)){echo $series_info['creator'];} ?>" id="exampleInputCreator" name="creators" placeholder="Enter the names of creators">
                             </div>
                         </div>
                         <div class="form-group row">
                             <label for="exampleInputSeasons" class="col-sm-2 col-form-label">Seasons</label>
                             <div class="col-sm-10">
-                                <input type="number" class="form-control" id="exampleInputSeasons" name="num_seasons" placeholder="Enter the number of seasons">
+                                <input type="number" class="form-control" value ="<?php if (isset($series_info)){echo $series_info['seasons'];} ?>" id="exampleInputSeasons" name="num_seasons" placeholder="Enter the number of seasons">
                             </div>
                         </div>
                         <div class="form-group row">
                             <label for="exampleInputAbstract" class="col-sm-2 col-form-label">Abstract</label>
                             <div class="col-sm-10">
-                                <textarea class="form-control" id="exampleInputAbstract" name="s_abstract" placeholder="Enter the abstract of the series"></textarea>
+                                <textarea class="form-control" id="exampleInputAbstract" name="s_abstract" placeholder="Enter the abstract of the series"><?php if (isset($series_info)){echo $series_info['abstract'];} ?></textarea>
                             </div>
                         </div>
                         <div class="form-group row">
                             <div class="col-sm-10">
-                                <button type="submit" class="btn btn-primary"><?php if (isset($submit_btn)){echo $submit_btn;} ?></button>
+                                <input type="hidden" value="<?php if (isset($series_info)){echo $series_info['id'];} ?>" name="book_id">
+                                <button type="submit" class="btn btn-primary"><?= $submit_btn?></button>
                             </div>
                         </div>
                     </form>

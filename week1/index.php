@@ -193,10 +193,9 @@ elseif (new_route('/DDWT22/week1/add/', 'post')) {
 /* Edit series GET */
 elseif (new_route('/DDWT22/week1/edit/', 'get')) {
     /* Get series info from db */
-    $series_name = 'House of Cards';
-    $series_abstract = 'A Congressman works with his equally conniving wife to exact revenge on the people who betrayed him.';
-    $nbr_seasons = '6';
-    $creators = 'Beau Willimon';
+    $series_id = $_GET["series_id"];
+    $series_info = get_series_info($db, $series_id);
+    $series_name = $series_info["name"];
 
     /* Page info */
     $page_title = 'Edit Series';
@@ -215,7 +214,8 @@ elseif (new_route('/DDWT22/week1/edit/', 'get')) {
     $right_column = use_template('cards');
     $page_subtitle = sprintf('Edit %s', $series_name);
     $page_content = 'Edit the series below.';
-
+    $form_action = '/DDWT22/week1/edit/';
+    $submit_btn = 'Confirm Editing';
     /* Choose Template */
     include use_template('new');
 }
