@@ -155,6 +155,17 @@ function get_series($pdo){
     return $series_arr;
 }
 
+function get_series_info($pdo, $series_id){
+    $series_arr = array();
+    $stmt = $pdo->prepare('SELECT * FROM series where id = ?');
+    $stmt -> execute([$series_id]);
+    $series = $stmt -> fetch();
+    foreach ($series as $key => $value){
+        $series_arr[$key] = htmlspecialchars($value);
+    }
+    return $series_arr;
+}
+
 function get_series_table($series_arr){
     $table_exp =
         '
@@ -171,7 +182,7 @@ function get_series_table($series_arr){
             '
 <tr>
 <th scope="row">'.$value['name'].'</th>
-<td><a href=“/DDWT22/week1/series/?series_id='.$value['id'].'" role="button" class="btn btn-primary">More info</a></td>
+<td><a href="/DDWT22/week1/series/?series_id='.$value['id'].'" role="button" class="btn btn-primary">More info</a></td>
 </tr>
 ';
 }
