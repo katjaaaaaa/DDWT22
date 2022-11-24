@@ -156,7 +156,7 @@ elseif (new_route('/DDWT22/week1/add/', 'get')) {
     $page_subtitle = 'Add your favorite series';
     $page_content = 'Fill in the details of you favorite series.';
     $submit_btn = 'Add Series';
-    $form_action = '/DDWT22/week1/add/';
+    $form_action = '/DDWT22/week1/add';
 
     /* Choose Template */
     include use_template('new');
@@ -164,6 +164,7 @@ elseif (new_route('/DDWT22/week1/add/', 'get')) {
 
 /* Add series POST */
 elseif (new_route('/DDWT22/week1/add/', 'post')) {
+
     /* Page info */
     $page_title = 'Add Series';
     $breadcrumbs = get_breadcrumbs([
@@ -182,10 +183,9 @@ elseif (new_route('/DDWT22/week1/add/', 'post')) {
     $page_subtitle = 'Add your favorite series';
     $page_content = 'Fill in the details of you favorite series.';
     $submit_btn = 'Add Series';
-    $form_action = '/DDWT22/week1/add/';
-
     $post_arr = $_POST;
-    $error_msg = get_error(add_series($db, $post_arr));
+    $message = add_series($db, $post_arr);
+    $error_msg = get_error($message);
 
     include use_template('new');
 }
@@ -263,7 +263,6 @@ elseif (new_route('/DDWT22/week1/edit/', 'post')) {
     $page_subtitle = sprintf('Information about %s', $series_name);
     $page_content = $post_arr['s_abstract'];
 
-    $error_msg = get_error(update_series($db, $post_arr));
     /* Choose Template */
     include use_template('series');
 }
@@ -274,6 +273,7 @@ elseif (new_route('/DDWT22/week1/remove/', 'post')) {
     $series_id = $_POST['series_id'];
     $feedback_msg = remove_series($db, $series_id);
     $error_msg = get_error($feedback_msg);
+    $form_action = '/DDWT22/week1/overview';
 
     /* Page info */
     $page_title = 'Overview';
@@ -288,31 +288,19 @@ elseif (new_route('/DDWT22/week1/remove/', 'post')) {
         'Add Series' => na('/DDWT22/week1/add/', False)
     ]);
 
+    $db = connect_db('localhost', 'ddwt22_week1', 'ddwt22','ddwt22');
+    /* Counting series */
+    $series_num = count_series($db);
+    /* Getting data from DB */
+    $series_arr = get_series($db);
+    /* Adding data to HTML table */
+    $table_exp = get_series_table($series_arr);
+
     /* Page content */
     $right_column = use_template('cards');
     $page_subtitle = 'The overview of all series';
     $page_content = 'Here you find all series listed on Series Overview.';
-    $left_content = '
-    <table class="table table-hover">
-        <thead>
-        <tr>
-            <th scope="col">Series</th>
-            <th scope="col"></th>
-        </tr>
-        </thead>
-        <tbody>
-        <tr>
-            <th scope="row">House of Cards</th>
-            <td><a href="/DDWT22/week1/series/" role="button" class="btn btn-primary">More info</a></td>
-        </tr>
-
-        <tr>
-            <th scope="row">Game of Thrones</th>
-            <td><a href="/DDWT22/week1/series/" role="button" class="btn btn-primary">More info</a></td>
-        </tr>
-
-        </tbody>
-    </table>';
+    $left_content = $table_exp;
 
     /* Choose Template */
     include use_template('main');

@@ -196,8 +196,6 @@ return $table_exp;
 
 function add_series($pdo, $post_arr){
 
-    $message = array('type' => 'success', 'message' => 'Series was successfully created.');
-    $error = array('type' => 'danger', 'message' => "Series wasn't added. There was an error.");
     /* check if series already exists in database */
     $stmt = $pdo->prepare('SELECT * FROM series WHERE name = ?');
     $stmt->execute([$post_arr["s_name"]]);
@@ -230,7 +228,7 @@ function add_series($pdo, $post_arr){
         ]);
         $inserted = $stmt->rowCount();
         if ($inserted == 1) {
-            return $message;
+            return array('type' => 'success', 'message' => 'Series was successfully created.');
         }
         else {
             return array('type' => 'danger', 'message' => "Series wasn't added. There was an error.");
@@ -239,14 +237,12 @@ function add_series($pdo, $post_arr){
 }
 
 function update_series($pdo, $post_arr){
-    $message = array('type' => 'success', 'message' => 'Series was successfully updated.');
 
     /* check if series already exists in database */
-    $stmt = $pdo->prepare('SELECT * FROM series WHERE name = ? and id = ?');
-    $stmt->execute([$post_arr["s_name"], $post_arr["series_id"]]);
-    $series = $stmt->rowCount();
-
-    if (!$series) {
+    $stmt = $pdo->prepare('SELECT * FROM series WHERE name = ?');
+    $stmt->execute([$post_arr["s_name"]]);
+    $series = $stmt -> fetch();
+    if ($series and $series['id'] !== $post_arr['series_id']) {
         return array('type' => 'danger', 'message' => "The series with this name already exists in the database.");
     }
     elseif (
@@ -272,12 +268,18 @@ function update_series($pdo, $post_arr){
             $post_arr["s_abstract"],
             $post_arr["series_id"]
         ]);
-        $inserted = $stmt->rowCount();
-        if ($inserted == 0) {
-            return $message;
-        }
-        else {
-            return array('type' => 'danger', 'message' => "Series wasn't updated. There was an error.");
-        }
+        return array('type' => 'success', 'message' => 'Series was successfully updated.');
+    }
+}
+
+function remove_series($pdo, $series_id){
+    $stmt = $pdo->prepare("DELETE FROM series WHERE id = ?");
+    $stmt->execute([$series_id]);
+    $deleted = $stmt->rowCount();
+    if ($deleted == 1){
+        return array('type' => 'success', 'message' => "Series was successfully deleted.");
+    }
+    else{
+        return array('type' => 'danger', 'message' => "Series wasn't deleted, an error is occurred.");
     }
 }
