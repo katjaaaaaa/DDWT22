@@ -28,7 +28,7 @@
                 <!-- Left column -->
                 <div class="col-md-8">
                     <!-- Error message -->
-                    <?php if (isset($error_msg)){echo $error_msg;} ?>
+                    <?=$error_msg?>
 
                     <h1><?= $page_title ?></h1>
                     <h5><?= $page_subtitle ?></h5>

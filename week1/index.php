@@ -185,7 +185,7 @@ elseif (new_route('/DDWT22/week1/add/', 'post')) {
     $form_action = '/DDWT22/week1/add/';
 
     $post_arr = $_POST;
-    $error_msg = add_series($db, $post_arr);
+    $error_msg = get_error(add_series($db, $post_arr));
 
     include use_template('new');
 }
@@ -223,13 +223,29 @@ elseif (new_route('/DDWT22/week1/edit/', 'get')) {
 /* Edit series POST */
 elseif (new_route('/DDWT22/week1/edit/', 'post')) {
     /* Get series info from db */
-    $series_name = 'House of Cards';
-    $series_abstract = 'A Congressman works with his equally conniving wife to exact revenge on the people who betrayed him.';
-    $nbr_seasons = '6';
-    $creators = 'Beau Willimon';
 
+    $post_arr = $_POST;
+    $feedback_msg = update_series($db, $post_arr);
+    $error_msg = get_error($feedback_msg);
+
+    $series_id = $post_arr['series_id'];
     /* Page info */
-    $page_title = $series_info['name'];
+    if ($feedback_msg['type'] === 'success'){
+        $page_title = $post_arr['s_name'];
+        $series_name = $post_arr['s_name'];
+        $series_abstract = $post_arr['s_abstract'];
+        $nbr_seasons = $post_arr['num_seasons'];
+        $creators = $post_arr['creators'];
+    }
+    else{
+        $series_info = get_series_info($db, $series_id);
+        $series_name = $series_info["name"];
+        $page_title = $series_info["name"];
+        $series_abstract = $series_info["abstract"];
+        $nbr_seasons = $series_info["seasons"];
+        $creators = $series_info["creator"];
+    }
+
     $breadcrumbs = get_breadcrumbs([
         'DDWT22' => na('/DDWT22/', False),
         'Week 1' => na('/DDWT22/week1/', False),
@@ -245,8 +261,9 @@ elseif (new_route('/DDWT22/week1/edit/', 'post')) {
     /* Page content */
     $right_column = use_template('cards');
     $page_subtitle = sprintf('Information about %s', $series_name);
-    $page_content = $series_info['abstract'];
+    $page_content = $post_arr['s_abstract'];
 
+    $error_msg = get_error(update_series($db, $post_arr));
     /* Choose Template */
     include use_template('series');
 }
@@ -255,8 +272,8 @@ elseif (new_route('/DDWT22/week1/edit/', 'post')) {
 elseif (new_route('/DDWT22/week1/remove/', 'post')) {
     /* Remove series in database */
     $series_id = $_POST['series_id'];
-    $feedback = remove_series($db, $series_id);
-    $error_msg = get_error($feedback);
+    $feedback_msg = remove_series($db, $series_id);
+    $error_msg = get_error($feedback_msg);
 
     /* Page info */
     $page_title = 'Overview';

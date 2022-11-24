@@ -28,7 +28,7 @@
                 <!-- Left column -->
                 <div class="col-md-8">
                     <!-- Error message -->
-                    <?php if (isset($error_msg['message'])){echo $error_msg['message'];} ?>
+                    <?=$error_msg?>
 
                     <h1><?= $page_title ?></h1>
                     <h5><?= $page_subtitle ?></h5>
@@ -60,7 +60,7 @@
                         </div>
                         <div class="form-group row">
                             <div class="col-sm-10">
-                                <input type="hidden" value="<?php if (isset($series_info)){echo $series_info['id'];} ?>" name="book_id">
+                                <input type="hidden" value="<?php if (isset($series_info)){echo $series_info['id'];} ?>" name="series_id">
                                 <button type="submit" class="btn btn-primary"><?= $submit_btn?></button>
                             </div>
                         </div>
