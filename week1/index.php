@@ -186,6 +186,8 @@ elseif (new_route('/DDWT22/week1/add/', 'post')) {
     $post_arr = $_POST;
     $message = add_series($db, $post_arr);
     $error_msg = get_error($message);
+    /* Counting series */
+    $series_num = count_series($db);
 
     include use_template('new');
 }
@@ -288,7 +290,6 @@ elseif (new_route('/DDWT22/week1/remove/', 'post')) {
         'Add Series' => na('/DDWT22/week1/add/', False)
     ]);
 
-    $db = connect_db('localhost', 'ddwt22_week1', 'ddwt22','ddwt22');
     /* Counting series */
     $series_num = count_series($db);
     /* Getting data from DB */
