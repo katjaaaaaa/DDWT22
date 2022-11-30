@@ -100,7 +100,7 @@ function get_breadcrumbs($breadcrumbs) {
  * @param array $navigation Array with as Key the page name and as Value the corresponding URL
  * @return string HTML code that represents the navigation
  */
-function get_navigation($navigation){
+function get_navigation($navigation, $active_id){
     $navigation_exp = '
     <nav class="navbar navbar-expand-lg navbar-light bg-light">
     <a class="navbar-brand">Series Overview</a>
@@ -109,14 +109,13 @@ function get_navigation($navigation){
     </button>
     <div class="collapse navbar-collapse" id="navbarSupportedContent">
     <ul class="navbar-nav mr-auto">';
-    foreach ($navigation as $name => $info) {
-        if ($info[1]){
+    foreach ($navigation as $id => $info) {
+        if ($active_id === $id){
             $navigation_exp .= '<li class="nav-item active">';
-            $navigation_exp .= '<a class="nav-link" href="'.$info[0].'">'.$name.'</a>';
         }else{
             $navigation_exp .= '<li class="nav-item">';
-            $navigation_exp .= '<a class="nav-link" href="'.$info[0].'">'.$name.'</a>';
         }
+        $navigation_exp .= '<a class="nav-link" href="'.$info['url'].'">'.$info['name'].'</a>';
 
         $navigation_exp .= '</li>';
     }
@@ -129,24 +128,29 @@ function get_navigation($navigation){
 
 /**
  * Creates a Bootstrap table with a list of series
- * @param array $series Associative array of series
+ * @param PDO $pdo Database object
  * @return string
  */
-function get_series_table($series){
+function get_series_table($pdo){
+
+    $stmt = $pdo->prepare('SELECT * FROM series');
+    $stmt->execute();
+    $series = $stmt->fetchAll();
     $table_exp = '
     <table class="table table-hover">
     <thead
     <tr>
         <th scope="col">Series</th>
-        <th scope="col"></th>
+        <th scope="col">Added by</th>
     </tr>
     </thead>
     <tbody>';
     foreach($series as $key => $value){
         $table_exp .= '
         <tr>
-            <th scope="row">'.$value['name'].'</th>
-            <td><a href="/DDWT22/week2/series/?series_id='.$value['id'].'" role="button" class="btn btn-primary">More info</a></td>
+            <td>'.$value['name'].'</td>
+            <td>'.get_user_name($pdo, $value['id']).'</td>
+            <td><a href="/DDWT22/week2/series/?series_id='.$value['series_id'].'" role="button" class="btn btn-primary">More info</a></td>
         </tr>
         ';
     }
@@ -208,13 +212,14 @@ function get_series_info($pdo, $series_id){
 
 /**
  * Creates HTML alert code with information about the success or failure
- * @param array $feedback Associative array with keys type and message
+ * @param string $feedback Associative array with keys type and message
  * @return string
  */
 function get_error($feedback){
+    $d_feedback = json_decode($feedback);
     $error_exp = '
-        <div class="alert alert-'.$feedback['type'].'" role="alert">
-            '.$feedback['message'].'
+        <div class="alert alert-'.$d_feedback['type'].'" role="alert">
+            '.$d_feedback['message'].'
         </div>';
     return $error_exp;
 }
@@ -411,4 +416,15 @@ function get_user_id(){
     } else {
         return False;
     }
+}
+
+/**
+ * Get the name of a user based on user id
+ * @return string containing the username
+ */
+function get_user_name($pdo, $user_id){
+    $stmt = $pdo->prepare('SELECT * FROM users where id = ?');
+    $stmt->execute([$user_id]);
+    $user_data = $stmt->fetch();
+    return $user_data['firstname']." ".$user_data['lastname'];
 }

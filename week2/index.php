@@ -12,10 +12,38 @@ include 'model.php';
 /* Connect to DB */
 $db = connect_db('localhost', 'ddwt22_week2', 'ddwt22','ddwt22');
 
+/* REDUNDANT CODE */
+
+/* Get Number of Series */
+$nbr_series = count_series($db);
+$right_column = use_template('cards');
+$template = Array(
+    1 => Array(
+        'name' => 'Home',
+        'url' => '/DDWT22/week2/'
+    ),
+    2 => Array(
+        'name' => 'Overview',
+        'url' => '/DDWT22/week2/overview/'
+    ),
+    3 => Array(
+        'name' => 'Add series',
+        'url' => '/DDWT22/week2/add/'
+    ),
+    4 => Array(
+        'name' => 'My account',
+        'url' => '/DDWT22/week2/myaccount/'
+    ),
+    5 => Array(
+        'name' => 'Registration',
+        'url' => '/DDWT22/week2/register/'
+    ));
+
+$active_id = Array(0,1,2,3,4,5);
+
+
 /* Landing page */
 if (new_route('/DDWT22/week2/', 'get')) {
-    /* Get Number of Series */
-    $nbr_series = count_series($db);
 
     /* Page info */
     $page_title = 'Home';
@@ -24,16 +52,10 @@ if (new_route('/DDWT22/week2/', 'get')) {
         'Week 2' => na('/DDWT22/week2/', False),
         'Home' => na('/DDWT22/week2/', True)
     ]);
-    $navigation = get_navigation([
-        'Home' => na('/DDWT22/week2/', True),
-        'Overview' => na('/DDWT22/week2/overview/', False),
-        'Add series' => na('/DDWT22/week2/add/', False),
-        'My Account' => na('/DDWT22/week2/myaccount/', False),
-        'Registration' => na('/DDWT22/week2/register/', False)
-    ]);
+    $navigation = get_navigation($template, $active_id[1]);
 
     /* Page content */
-    $right_column = use_template('cards');
+    //$right_column = use_template('cards');
     $page_subtitle = 'The online platform to list your favorite series';
     $page_content = 'On Series Overview you can list your favorite series. You can see the favorite series of all Series Overview users. By sharing your favorite series, you can get inspired by others and explore new series.';
 
@@ -43,8 +65,6 @@ if (new_route('/DDWT22/week2/', 'get')) {
 
 /* Overview page */
 elseif (new_route('/DDWT22/week2/overview/', 'get')) {
-    /* Get Number of Series */
-    $nbr_series = count_series($db);
 
     /* Page info */
     $page_title = 'Overview';
@@ -53,19 +73,13 @@ elseif (new_route('/DDWT22/week2/overview/', 'get')) {
         'Week 2' => na('/DDWT22/week2/', False),
         'Overview' => na('/DDWT22/week2/overview', True)
     ]);
-    $navigation = get_navigation([
-        'Home' => na('/DDWT22/week2/', False),
-        'Overview' => na('/DDWT22/week2/overview', True),
-        'Add series' => na('/DDWT22/week2/add/', False),
-        'My Account' => na('/DDWT22/week2/myaccount/', False),
-        'Registration' => na('/DDWT22/week2/register/', False)
-    ]);
+    $navigation = get_navigation($template, $active_id[2]);
 
     /* Page content */
-    $right_column = use_template('cards');
+    //$right_column = use_template('cards');
     $page_subtitle = 'The overview of all series';
     $page_content = 'Here you find all series listed on Series Overview.';
-    $left_content = get_series_table(get_series($db));
+    $left_content = get_series_table($db);
 
     /* Choose Template */
     include use_template('main');
@@ -73,8 +87,6 @@ elseif (new_route('/DDWT22/week2/overview/', 'get')) {
 
 /* Single Series */
 elseif (new_route('/DDWT22/week2/series/', 'get')) {
-    /* Get Number of Series */
-    $nbr_series = count_series($db);
 
     /* Get series from db */
     $series_id = $_GET['series_id'];
@@ -88,20 +100,19 @@ elseif (new_route('/DDWT22/week2/series/', 'get')) {
         'Overview' => na('/DDWT22/week2/overview/', False),
         $series_info['name'] => na('/DDWT22/week2/series/?series_id='.$series_id, True)
     ]);
-    $navigation = get_navigation([
-        'Home' => na('/DDWT22/week2/', False),
-        'Overview' => na('/DDWT22/week2/overview', True),
-        'Add series' => na('/DDWT22/week2/add/', False),
-        'My Account' => na('/DDWT22/week2/myaccount/', False),
-        'Registration' => na('/DDWT22/week2/register/', False)
-    ]);
+    $navigation = get_navigation($template, $active_id[2]);
 
     /* Page content */
-    $right_column = use_template('cards');
     $page_subtitle = sprintf("Information about %s", $series_info['name']);
     $page_content = $series_info['abstract'];
     $nbr_seasons = $series_info['seasons'];
     $creators = $series_info['creator'];
+
+    /* Getting info from edit post request */
+    if (isset($_GET['error_msg'])){
+        $changed_series_id = $_GET['series_id'];
+        $error_msg = get_error($_GET['error_msg']);
+    }
 
     /* Choose Template */
     include use_template('series');
@@ -109,8 +120,6 @@ elseif (new_route('/DDWT22/week2/series/', 'get')) {
 
 /* Add series GET */
 elseif (new_route('/DDWT22/week2/add/', 'get')) {
-    /* Get Number of Series */
-    $nbr_series = count_series($db);
 
     /* Page info */
     $page_title = 'Add Series';
@@ -119,20 +128,18 @@ elseif (new_route('/DDWT22/week2/add/', 'get')) {
         'Week 2' => na('/DDWT22/week2/', False),
         'Add Series' => na('/DDWT22/week2/new/', True)
     ]);
-    $navigation = get_navigation([
-        'Home' => na('/DDWT22/week2/', False),
-        'Overview' => na('/DDWT22/week2/overview', False),
-        'Add series' => na('/DDWT22/week2/add/', True),
-        'My Account' => na('/DDWT22/week2/myaccount/', False),
-        'Registration' => na('/DDWT22/week2/register/', False)
-    ]);
+    $navigation = get_navigation($template, $active_id[3]);
 
     /* Page content */
-    $right_column = use_template('cards');
+    //$right_column = use_template('cards');
     $page_subtitle = 'Add your favorite series';
     $page_content = 'Fill in the details of you favorite series.';
     $submit_btn = "Add Series";
     $form_action = '/DDWT22/week2/add/';
+
+    if (isset ($_GET['error_msg'])){
+        $error_msg = get_error($_GET['error_msg']);
+    }
 
     /* Choose Template */
     include use_template('new');
@@ -140,8 +147,6 @@ elseif (new_route('/DDWT22/week2/add/', 'get')) {
 
 /* Add series POST */
 elseif (new_route('/DDWT22/week2/add/', 'post')) {
-    /* Get Number of Series */
-    $nbr_series = count_series($db);
 
     /* Page info */
     $page_title = 'Add Series';
@@ -150,16 +155,10 @@ elseif (new_route('/DDWT22/week2/add/', 'post')) {
         'Week 2' => na('/DDWT22/week2/', False),
         'Add Series' => na('/DDWT22/week2/add/', True)
     ]);
-    $navigation = get_navigation([
-        'Home' => na('/DDWT22/week2/', False),
-        'Overview' => na('/DDWT22/week2/overview', False),
-        'Add series' => na('/DDWT22/week2/add/', True),
-        'My Account' => na('/DDWT22/week2/myaccount/', False),
-        'Registration' => na('/DDWT22/week2/register/', False)
-    ]);
+    $navigation = get_navigation($template, $active_id[3]);
 
     /* Page content */
-    $right_column = use_template('cards');
+    //$right_column = use_template('cards'); 5.2
     $page_subtitle = 'Add your favorite series';
     $page_content = 'Fill in the details of you favorite series.';
     $submit_btn = "Add Series";
@@ -167,15 +166,17 @@ elseif (new_route('/DDWT22/week2/add/', 'post')) {
 
     /* Add series to database */
     $feedback = add_series($db, $_POST);
-    $error_msg = get_error($feedback);
+    $error_msg = urlencode(json_encode($feedback));
+    if($feedback['type'] === 'error'){
+        /* redirect to get request */
+        redirect(sprintf('/DDWT22/week2/add/', $error_msg));
+    }
 
     include use_template('new');
 }
 
 /* Edit series GET */
 elseif (new_route('/DDWT22/week2/edit/', 'get')) {
-    /* Get Number of Series */
-    $nbr_series = count_series($db);
 
     /* Get series info from db */
     $series_id = $_GET['series_id'];
@@ -188,16 +189,10 @@ elseif (new_route('/DDWT22/week2/edit/', 'get')) {
         'Week 2' => na('/DDWT22/week2/', False),
         sprintf("Edit Series %s", $series_info['name']) => na('/DDWT22/week2/new/', True)
     ]);
-    $navigation = get_navigation([
-        'Home' => na('/DDWT22/week2/', False),
-        'Overview' => na('/DDWT22/week2/overview', False),
-        'Add series' => na('/DDWT22/week2/add/', False),
-        'My Account' => na('/DDWT22/week2/myaccount/', False),
-        'Registration' => na('/DDWT22/week2/register/', False)
-    ]);
+    $navigation = get_navigation($template, $active_id[0]);
 
     /* Page content */
-    $right_column = use_template('cards');
+    //$right_column = use_template('cards');
     $page_subtitle = sprintf("Edit %s", $series_info['name']);
     $page_content = 'Edit the series below.';
     $submit_btn = "Edit Series";
@@ -209,16 +204,19 @@ elseif (new_route('/DDWT22/week2/edit/', 'get')) {
 
 /* Edit series POST */
 elseif (new_route('/DDWT22/week2/edit/', 'post')) {
-    /* Get Number of Series */
-    $nbr_series = count_series($db);
-
-    /* Update series in database */
-    $feedback = update_series($db, $_POST);
-    $error_msg = get_error($feedback);
 
     /* Get series info from db */
     $series_id = $_POST['series_id'];
     $series_info = get_series_info($db, $series_id);
+
+    /* Update series in database */
+    $feedback = update_series($db, $_POST);
+    $error_msg = json_encode($feedback);
+
+    if($feedback['type'] === 'error'){
+        /* redirect to get request */
+        redirect(sprintf('/DDWT22/week2/series/', $error_msg, $series_id));
+    }
 
     /* Page info */
     $page_title = $series_info['name'];
@@ -228,16 +226,9 @@ elseif (new_route('/DDWT22/week2/edit/', 'post')) {
         'Overview' => na('/DDWT22/week2/overview/', False),
         $series_info['name'] => na('/DDWT22/week2/series/?series_id='.$series_id, True)
     ]);
-    $navigation = get_navigation([
-        'Home' => na('/DDWT22/week2/', False),
-        'Overview' => na('/DDWT22/week2/overview', False),
-        'Add series' => na('/DDWT22/week2/add/', False),
-        'My Account' => na('/DDWT22/week2/myaccount/', False),
-        'Registration' => na('/DDWT22/week2/register/', False)
-    ]);
+    $navigation = get_navigation($template, $active_id[0]);
 
     /* Page content */
-    $right_column = use_template('cards');
     $page_subtitle = sprintf("Information about %s", $series_info['name']);
     $page_content = $series_info['abstract'];
     $nbr_seasons = $series_info['seasons'];
@@ -249,8 +240,6 @@ elseif (new_route('/DDWT22/week2/edit/', 'post')) {
 
 /* Remove series */
 elseif (new_route('/DDWT22/week2/remove/', 'post')) {
-    /* Get Number of Series */
-    $nbr_series = count_series($db);
 
     /* Remove series in database */
     $series_id = $_POST['series_id'];
@@ -264,16 +253,10 @@ elseif (new_route('/DDWT22/week2/remove/', 'post')) {
         'Week 2' => na('/DDWT22/week2/', False),
         'Overview' => na('/DDWT22/week2/overview', True)
     ]);
-    $navigation = get_navigation([
-        'Home' => na('/DDWT22/week2/', False),
-        'Overview' => na('/DDWT22/week2/overview', True),
-        'Add series' => na('/DDWT22/week2/add/', False),
-        'My Account' => na('/DDWT22/week2/myaccount/', False),
-        'Registration' => na('/DDWT22/week2/register/', False)
-    ]);
+    $navigation = get_navigation($template, $active_id[2]);
 
     /* Page content */
-    $right_column = use_template('cards');
+    //$right_column = use_template('cards');
     $page_subtitle = 'The overview of all series';
     $page_content = 'Here you find all series listed on Series Overview.';
     $left_content = get_series_table(get_series($db));
