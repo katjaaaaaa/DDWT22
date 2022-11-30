@@ -257,13 +257,126 @@ elseif (new_route('/DDWT22/week2/remove/', 'post')) {
     $navigation = get_navigation($template, $active_id[2]);
 
     /* Page content */
-    //$right_column = use_template('cards');
     $page_subtitle = 'The overview of all series';
     $page_content = 'Here you find all series listed on Series Overview.';
     $left_content = get_series_table(get_series($db));
 
     /* Choose Template */
     include use_template('main');
+}
+/* My account page */
+elseif (new_route('/DDWT22/week2/myaccount/', 'GET')){
+    $page_title = 'My account';
+    $breadcrumbs = get_breadcrumbs([
+        'DDWT22' => na('/DDWT22/', False),
+        'Week 2' => na('/DDWT22/week2/', False),
+        'Overview' => na('/DDWT22/week2/overview', False)
+    ]);
+    $navigation = get_navigation($template, $active_id[4]);
+    /* Page content */
+    session_start();
+    if (isset($_SESSION['name'])){
+        $page_subtitle = 'This is your account page';
+        $page_content = 'Something something';
+        $user = get_user_name($db, $_SESSION['name']);
+        //$left_content = get_series_table(get_series($db));
+    }
+    else{
+        $page_subtitle = 'Bro you need to log in';
+        $page_content = 'Yeah';
+    }
+
+    /* Choose Template */
+    include use_template('account');
+}
+
+/* Register page */
+
+elseif (new_route('/DDWT22/week2/register/', 'GET')){
+    $page_title = 'Register a new user';
+    $breadcrumbs = get_breadcrumbs([
+        'DDWT22' => na('/DDWT22/', False),
+        'Week 2' => na('/DDWT22/week2/', False),
+        'Overview' => na('/DDWT22/week2/overview', False)
+    ]);
+    $navigation = get_navigation($template, $active_id[5]);
+    /* Page content */
+    $page_subtitle = 'Registration';
+    $page_content = 'Hell yeah';
+    if (isset($_GET['error_msg'])){
+        $error_msg = get_error($_GET['error_msg']);
+    }
+
+    /* Choose Template */
+    include use_template('register');
+}
+
+elseif (new_route('/DDWT22/week2/register/', 'POST')){
+    $page_title = 'Register a new user';
+    $breadcrumbs = get_breadcrumbs([
+        'DDWT22' => na('/DDWT22/', False),
+        'Week 2' => na('/DDWT22/week2/', False),
+        'Overview' => na('/DDWT22/week2/overview', False)
+    ]);
+    $navigation = get_navigation($template, $active_id[5]);
+
+    /* Page content */
+    $page_subtitle = 'Registration';
+    $page_content = 'Hell yeah';
+    $form_data = $_POST;
+    $feedback = register_user($db, $_POST);
+    $error_msg = json_encode($feedback);
+    if ($feedback['type'] === 'success'){
+        session_start();
+        redirect(sprintf('/DDWT22/week2/myaccount/', $error_msg, $_SESSION['username']));
+    }
+    else{
+        redirect(sprintf('/DDWT22/week2/register/', $error_msg));
+    }
+
+
+    /* Choose Template */
+    include use_template('register');
+}
+
+/* Log In page */
+elseif( new_route('/DDWT22/week2/login', 'GET')){
+    $page_title = 'Log in';
+    $breadcrumbs = get_breadcrumbs([
+        'DDWT22' => na('/DDWT22/', False),
+        'Week 2' => na('/DDWT22/week2/', False),
+        'Overview' => na('/DDWT22/week2/overview', False)
+    ]);
+    $navigation = get_navigation($template, $active_id[0]);
+    /* Page content */
+    $page_subtitle = 'Please log in';
+    $page_content = 'Hell yeah';
+
+
+    /* Choose Template */
+    include use_template('login');
+}
+
+elseif( new_route('/DDWT22/week2/login', 'POST')){
+    $page_title = 'Log in';
+    $breadcrumbs = get_breadcrumbs([
+        'DDWT22' => na('/DDWT22/', False),
+        'Week 2' => na('/DDWT22/week2/', False),
+        'Overview' => na('/DDWT22/week2/overview', False)
+    ]);
+    $navigation = get_navigation($template, $active_id[0]);
+    /* Page content */
+    $page_subtitle = 'Please log in';
+    $page_content = 'Hell yeah';
+
+
+    /* Choose Template */
+    include use_template('login');
+}
+
+/* Log Out page */
+elseif( new_route('/DDWT22/week2/logout/', 'GET')){
+    echo "You logged out, congratulations";
 }
 
 else {

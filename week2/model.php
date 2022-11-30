@@ -438,3 +438,58 @@ function get_user_name($pdo, $user_id){
     $user_data = $stmt->fetch();
     return $user_data['firstname']." ".$user_data['lastname'];
 }
+
+function register_user($pdo, $form_data){
+    /* Check if all fields are set */
+    if (
+        empty($form_data['username']) or
+        empty($form_data['password']) or
+        empty($form_data['firstname']) or
+        empty($form_data['lastname'])
+    ) {
+        return [
+            'type' => 'danger',
+            'message' => 'You should enter a username, password, first- and last name.'
+
+        ];
+    }
+
+    /* Check if series already exists */
+    $stmt = $pdo->prepare('SELECT * FROM users WHERE username = ?');
+    $stmt->execute([$form_data['username']]);
+    $nb_usernames = $stmt->rowCount();
+    if ($nb_usernames){
+        return [
+            'type' => 'danger',
+            'message' => 'This username already exists.'
+        ];
+    }
+
+    $hash = password_hash($form_data['password'], PASSWORD_BCRYPT);
+
+    /* Add User */
+    $stmt = $pdo->prepare("INSERT INTO users (username, password, firstname, lastname) VALUES (?, ?, ?, ?)");
+    $stmt->execute([
+        $form_data['username'],
+        $hash,
+        $form_data['firstname'],
+        $form_data['lastname']
+    ]);
+    $inserted = $stmt->rowCount();
+    if ($inserted ==  1) {
+        $stmt = $pdo->prepare('SELECT id FROM users WHERE username = ?');
+        $stmt->execute([$form_data['username']]);
+        session_start();
+        $_SESSION['name'] = $stmt->fetch(PDO::FETCH_ASSOC)['id'];
+        return [
+            'type' => 'success',
+            'message' => sprintf("User '%s' was added to the Database.", $form_data['username'])
+        ];
+    }
+    else {
+        return [
+            'type' => 'danger',
+            'message' => 'There was an error. User was not added. Try it again.'
+        ];
+    }
+}
