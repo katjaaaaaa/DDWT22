@@ -271,7 +271,7 @@ function add_series($pdo, $series_info){
         $series_info['Creator'],
         $series_info['Seasons'],
         $series_info['Abstract'],
-        $_SESSION['name']
+        $_SESSION['user_id']
     ]);
     $inserted = $stmt->rowCount();
     if ($inserted ==  1) {
@@ -482,7 +482,7 @@ function register_user($pdo, $form_data){
         $stmt = $pdo->prepare('SELECT id FROM users WHERE username = ?');
         $stmt->execute([$form_data['username']]);
         session_start();
-        $_SESSION['name'] = $stmt->fetch(PDO::FETCH_ASSOC)['id'];
+        $_SESSION['user_id'] = $stmt->fetch(PDO::FETCH_ASSOC)['id'];
         return [
             'type' => 'success',
             'message' => sprintf("User '%s' was added to the Database.", $form_data['username'])
@@ -496,6 +496,83 @@ function register_user($pdo, $form_data){
     }
 }
 
-function login_user($pdo, $form_data){
+/**
+ * Checks if user logged in successfully
+ * @param PDO $pdo Database
+ * @param $form_data array with data taken from the form
+ * @return array with feedback message
+ */
 
+function login_user($pdo, $form_data){
+    /* Check if all fields are set */
+    if (
+        empty($form_data['username']) or
+        empty($form_data['password'])
+    ) {
+        return [
+            'type' => 'danger',
+            'message' => 'You should enter a username and password.'
+
+        ];
+    }
+
+    try {
+        /* Check if username exists */
+        $stmt = $pdo->prepare('SELECT * FROM users WHERE username = ?');
+        $stmt->execute([$form_data['username']]);
+        $nb_usernames = $stmt->rowCount();
+        if (!$nb_usernames){
+            return [
+                'type' => 'danger',
+                'message' => "This username doesn't exist."
+            ];
+        }
+
+        /* Check password */
+        $user_info = $stmt->fetch();
+        if ( !password_verify($form_data['password'], $user_info['password']) ){
+            return [
+                'type' => 'warning',
+                'message' => "The password is incorrect."
+            ];
+        } else {
+            session_start();
+            $_SESSION['user_id'] = $user_info['id'];
+            return [
+                'type' => 'success',
+                'message' => sprintf('%s, you were logged in successfully!',
+                    get_user_name($pdo, $_SESSION['user_id']))
+            ];
+        }
+    } catch (PDOException $e) {
+        return [
+            'type' => 'danger',
+            'message' => "Database error occurred."
+        ];
+    }
+}
+
+/**
+ * Check if current user is already logged in
+ * @return bool
+ */
+function check_login(){
+    session_start();
+    if (isset($_SESSION['user_id'])){
+        return True;
+    } else {
+        return False;
+    }
+}
+
+
+function logout_user(){
+    session_start();
+    if (isset($_SESSION['user_id'])){
+        session_destroy();
+        return [
+            'type' => 'success',
+            'message' => 'You have been successfully logged out!'
+        ];
+    }
 }

@@ -19,6 +19,6 @@
         <p class="count">Series overview already has</p>
         <h2><?= $nbr_users ?></h2>
         <p>active users</p>
-        <a href="/DDWT22/week2/add/" class="btn btn-primary">List yours</a>
+        <a href="/DDWT22/week2/login/" class="btn btn-primary">Join now</a>
     </div>
 </div>
