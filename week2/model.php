@@ -392,8 +392,18 @@ function remove_series($pdo, $series_id){
 function count_series($pdo){
     $stmt = $pdo->prepare('SELECT * FROM series');
     $stmt->execute();
-    $series = $stmt->rowCount();
-    return $series;
+    return $stmt->rowCount();
+}
+
+/**
+ * Count the number of registered users on Series Overview
+ * @param PDO $pdo Database object
+ * @return int
+ */
+function count_users($pdo){
+    $stmt = $pdo->prepare('SELECT * FROM users');
+    $stmt->execute();
+    return $stmt->rowCount();
 }
 
 /**

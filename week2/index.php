@@ -16,6 +16,7 @@ $db = connect_db('localhost', 'ddwt22_week2', 'ddwt22','ddwt22');
 
 /* Get Number of Series */
 $nbr_series = count_series($db);
+$nbr_users = count_users($db);
 $right_column = use_template('cards');
 $template = Array(
     1 => Array(
@@ -55,7 +56,6 @@ if (new_route('/DDWT22/week2/', 'get')) {
     $navigation = get_navigation($template, $active_id[1]);
 
     /* Page content */
-    //$right_column = use_template('cards');
     $page_subtitle = 'The online platform to list your favorite series';
     $page_content = 'On Series Overview you can list your favorite series. You can see the favorite series of all Series Overview users. By sharing your favorite series, you can get inspired by others and explore new series.';
 
@@ -107,6 +107,7 @@ elseif (new_route('/DDWT22/week2/series/', 'get')) {
     $page_content = $series_info['abstract'];
     $nbr_seasons = $series_info['seasons'];
     $creators = $series_info['creator'];
+    $added_by = get_user_name($db, $series_id);
 
     /* Getting info from edit post request */
     if (isset($_GET['error_msg'])){
