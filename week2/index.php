@@ -80,6 +80,9 @@ elseif (new_route('/DDWT22/week2/overview/', 'get')) {
     $page_subtitle = 'The overview of all series';
     $page_content = 'Here you find all series listed on Series Overview.';
     $left_content = get_series_table($db);
+    if (isset($_GET['error_msg'])){
+        $error_msg = get_error($_GET['error_msg']);
+    }
 
     /* Choose Template */
     include use_template('main');
@@ -87,11 +90,9 @@ elseif (new_route('/DDWT22/week2/overview/', 'get')) {
 
 /* Single Series */
 elseif (new_route('/DDWT22/week2/series/', 'get')) {
-
     /* Get series from db */
     $series_id = $_GET['series_id'];
     $series_info = get_series_info($db, $series_id);
-
     /* Page info */
     $page_title = $series_info['name'];
     $breadcrumbs = get_breadcrumbs([
@@ -107,7 +108,7 @@ elseif (new_route('/DDWT22/week2/series/', 'get')) {
     $page_content = $series_info['abstract'];
     $nbr_seasons = $series_info['seasons'];
     $creators = $series_info['creator'];
-    $added_by = get_user_name($db, $series_id);
+    $added_by = get_user_name($db, $series_info['id']);
 
     /* Getting info from edit post request */
     if (isset($_GET['error_msg'])){
@@ -170,7 +171,10 @@ elseif (new_route('/DDWT22/week2/add/', 'post')) {
     $error_msg = urlencode(json_encode($feedback));
     if($feedback['type'] === 'error'){
         /* redirect to get request */
-        redirect(sprintf('/DDWT22/week2/add/', $error_msg));
+        redirect(sprintf('/DDWT22/week2/add/?error_msg=%s', $error_msg));
+    }
+    else{
+        redirect(sprintf('/DDWT22/week2/overview/?error_msg=%s', $error_msg));
     }
 
     include use_template('new');
@@ -214,10 +218,8 @@ elseif (new_route('/DDWT22/week2/edit/', 'post')) {
     $feedback = update_series($db, $_POST);
     $error_msg = json_encode($feedback);
 
-    if($feedback['type'] === 'error'){
-        /* redirect to get request */
-        redirect(sprintf('/DDWT22/week2/series/', $error_msg, $series_id));
-    }
+    /* redirect to get request */
+    redirect(sprintf('/DDWT22/week2/series/?error_msg=%s&series_id=%s', $error_msg, $series_id));
 
     /* Page info */
     $page_title = $series_info['name'];
@@ -245,7 +247,13 @@ elseif (new_route('/DDWT22/week2/remove/', 'post')) {
     /* Remove series in database */
     $series_id = $_POST['series_id'];
     $feedback = remove_series($db, $series_id);
-    $error_msg = get_error($feedback);
+    $error_msg = json_encode($feedback);
+    if ($feedback['type'] === 'warning'){
+        redirect(sprintf('/DDWT22/week2/series/?error_msg=%s&series_id=%s', $error_msg, $series_id));
+    }
+    else{
+        redirect(sprintf('/DDWT22/week2/overview/?error_msg=%s', $error_msg));
+    }
 
     /* Page info */
     $page_title = 'Overview';
@@ -279,7 +287,9 @@ elseif (new_route('/DDWT22/week2/myaccount/', 'GET')){
         $page_subtitle = 'This is your account page';
         $page_content = 'Something something';
         $user = get_user_name($db, $_SESSION['name']);
-        //$left_content = get_series_table(get_series($db));
+        if (isset($_GET['error_msg'])){
+            $error_msg = get_error($_GET['error_msg']);
+        }
     }
     else{
         $page_subtitle = 'Bro you need to log in';
@@ -328,10 +338,10 @@ elseif (new_route('/DDWT22/week2/register/', 'POST')){
     $error_msg = json_encode($feedback);
     if ($feedback['type'] === 'success'){
         session_start();
-        redirect(sprintf('/DDWT22/week2/myaccount/', $error_msg, $_SESSION['username']));
+        redirect(sprintf('/DDWT22/week2/myaccount/?error_msg=%s&?user=%s', $error_msg, $_SESSION['username']));
     }
     else{
-        redirect(sprintf('/DDWT22/week2/register/', $error_msg));
+        redirect(sprintf('/DDWT22/week2/register/?error_msg=%s', $error_msg));
     }
 
 

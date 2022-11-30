@@ -198,7 +198,7 @@ function get_series($pdo){
  * @return mixed
  */
 function get_series_info($pdo, $series_id){
-    $stmt = $pdo->prepare('SELECT * FROM series WHERE id = ?');
+    $stmt = $pdo->prepare('SELECT * FROM series WHERE series_id = ?');
     $stmt->execute([$series_id]);
     $series_info = $stmt->fetch();
     $series_info_exp = Array();
@@ -216,7 +216,7 @@ function get_series_info($pdo, $series_id){
  * @return string
  */
 function get_error($feedback){
-    $d_feedback = json_decode($feedback);
+    $d_feedback = json_decode($feedback, true);
     $error_exp = '
         <div class="alert alert-'.$d_feedback['type'].'" role="alert">
             '.$d_feedback['message'].'
@@ -264,12 +264,14 @@ function add_series($pdo, $series_info){
     }
 
     /* Add Series */
-    $stmt = $pdo->prepare("INSERT INTO series (name, creator, seasons, abstract) VALUES (?, ?, ?, ?)");
+    session_start();
+    $stmt = $pdo->prepare("INSERT INTO series (name, creator, seasons, abstract, id) VALUES (?, ?, ?, ?, ?)");
     $stmt->execute([
         $series_info['Name'],
         $series_info['Creator'],
         $series_info['Seasons'],
-        $series_info['Abstract']
+        $series_info['Abstract'],
+        $_SESSION['name']
     ]);
     $inserted = $stmt->rowCount();
     if ($inserted ==  1) {
@@ -316,7 +318,7 @@ function update_series($pdo, $series_info){
     }
 
     /* Get current series name */
-    $stmt = $pdo->prepare('SELECT * FROM series WHERE id = ?');
+    $stmt = $pdo->prepare('SELECT * FROM series WHERE series_id = ?');
     $stmt->execute([$series_info['series_id']]);
     $series = $stmt->fetch();
     $current_name = $series['name'];
@@ -325,7 +327,7 @@ function update_series($pdo, $series_info){
     $stmt = $pdo->prepare('SELECT * FROM series WHERE name = ?');
     $stmt->execute([$series_info['Name']]);
     $series = $stmt->fetch();
-    if ($series_info['Name'] == $series['name'] and $series['name'] != $current_name){
+    if ($series and $series_info['Name'] == $series['name'] and $series['name'] != $current_name){
         return [
             'type' => 'danger',
             'message' => sprintf("The name of the series cannot be changed. %s already exists.", $series_info['Name'])
@@ -333,7 +335,7 @@ function update_series($pdo, $series_info){
     }
 
     /* Update Series */
-    $stmt = $pdo->prepare("UPDATE series SET name = ?, creator = ?, seasons = ?, abstract = ? WHERE id = ?");
+    $stmt = $pdo->prepare("UPDATE series SET name = ?, creator = ?, seasons = ?, abstract = ? WHERE series_id = ?");
     $stmt->execute([
         $series_info['Name'],
         $series_info['Creator'],
@@ -367,7 +369,7 @@ function remove_series($pdo, $series_id){
     $series_info = get_series_info($pdo, $series_id);
 
     /* Delete Series */
-    $stmt = $pdo->prepare("DELETE FROM series WHERE id = ?");
+    $stmt = $pdo->prepare("DELETE FROM series WHERE series_id = ?");
     $stmt->execute([$series_id]);
     $deleted = $stmt->rowCount();
     if ($deleted ==  1) {
@@ -492,4 +494,8 @@ function register_user($pdo, $form_data){
             'message' => 'There was an error. User was not added. Try it again.'
         ];
     }
+}
+
+function login_user($pdo, $form_data){
+
 }
