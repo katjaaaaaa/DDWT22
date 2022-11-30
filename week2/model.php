@@ -333,27 +333,34 @@ function update_series($pdo, $series_info){
             'message' => sprintf("The name of the series cannot be changed. %s already exists.", $series_info['Name'])
         ];
     }
-
-    /* Update Series */
-    $stmt = $pdo->prepare("UPDATE series SET name = ?, creator = ?, seasons = ?, abstract = ? WHERE series_id = ?");
-    $stmt->execute([
-        $series_info['Name'],
-        $series_info['Creator'],
-        $series_info['Seasons'],
-        $series_info['Abstract'],
-        $series_info['series_id']
-    ]);
-    $updated = $stmt->rowCount();
-    if ($updated ==  1) {
-        return [
-            'type' => 'success',
-            'message' => sprintf("Series '%s' was edited!", $series_info['Name'])
-        ];
+    session_start();
+    if ($series_info['id'] === $_SESSION['user_id']) {
+        /* Update Series */
+        $stmt = $pdo->prepare("UPDATE series SET name = ?, creator = ?, seasons = ?, abstract = ? WHERE series_id = ?");
+        $stmt->execute([
+            $series_info['Name'],
+            $series_info['Creator'],
+            $series_info['Seasons'],
+            $series_info['Abstract'],
+            $series_info['series_id']
+        ]);
+        $updated = $stmt->rowCount();
+        if ($updated == 1) {
+            return [
+                'type' => 'success',
+                'message' => sprintf("Series '%s' was edited!", $series_info['Name'])
+            ];
+        } else {
+            return [
+                'type' => 'warning',
+                'message' => 'The series was not edited. No changes were detected.'
+            ];
+        }
     }
-    else {
+    else{
         return [
             'type' => 'warning',
-            'message' => 'The series was not edited. No changes were detected.'
+            'message' => 'Permission for editing is denied.'
         ];
     }
 }
@@ -367,21 +374,28 @@ function update_series($pdo, $series_info){
 function remove_series($pdo, $series_id){
     /* Get series info */
     $series_info = get_series_info($pdo, $series_id);
-
-    /* Delete Series */
-    $stmt = $pdo->prepare("DELETE FROM series WHERE series_id = ?");
-    $stmt->execute([$series_id]);
-    $deleted = $stmt->rowCount();
-    if ($deleted ==  1) {
-        return [
-            'type' => 'success',
-            'message' => sprintf("Series '%s' was removed!", $series_info['name'])
-        ];
+    session_start();
+    if ($series_info['id'] === $_SESSION['user_id']) {
+        /* Delete Series */
+        $stmt = $pdo->prepare("DELETE FROM series WHERE series_id = ?");
+        $stmt->execute([$series_id]);
+        $deleted = $stmt->rowCount();
+        if ($deleted == 1) {
+            return [
+                'type' => 'success',
+                'message' => sprintf("Series '%s' was removed!", $series_info['name'])
+            ];
+        } else {
+            return [
+                'type' => 'warning',
+                'message' => 'An error occurred. The series was not removed.'
+            ];
+        }
     }
-    else {
+    else{
         return [
             'type' => 'warning',
-            'message' => 'An error occurred. The series was not removed.'
+            'message' => 'Permission for deleting is denied.'
         ];
     }
 }
@@ -565,7 +579,10 @@ function check_login(){
     }
 }
 
-
+/**
+ * Terminates current active session and logs the user out
+ * @return array with the feedback message
+ */
 function logout_user(){
     session_start();
     if (isset($_SESSION['user_id'])){

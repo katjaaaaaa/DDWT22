@@ -90,10 +90,17 @@ elseif (new_route('/DDWT22/week2/overview/', 'get')) {
 
 /* Single Series */
 elseif (new_route('/DDWT22/week2/series/', 'get')) {
+    session_start();
     /* Get series from db */
     $series_id = $_GET['series_id'];
     $series_info = get_series_info($db, $series_id);
     /* Page info */
+    if ($series_info['id'] === $_SESSION['user_id']){
+        $display_buttons = True;
+    }
+    else{
+        $display_buttons = False;
+    }
     $page_title = $series_info['name'];
     $breadcrumbs = get_breadcrumbs([
         'DDWT22' => na('/DDWT22/', False),
