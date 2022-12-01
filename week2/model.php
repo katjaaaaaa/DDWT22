@@ -300,8 +300,7 @@ function update_series($pdo, $series_info){
         empty($series_info['Name']) or
         empty($series_info['Creator']) or
         empty($series_info['Seasons']) or
-        empty($series_info['Abstract']) or
-        empty($series_info['series_id'])
+        empty($series_info['Abstract'])
     ) {
         return [
             'type' => 'danger',
@@ -320,8 +319,8 @@ function update_series($pdo, $series_info){
     /* Get current series name */
     $stmt = $pdo->prepare('SELECT * FROM series WHERE series_id = ?');
     $stmt->execute([$series_info['series_id']]);
-    $series = $stmt->fetch();
-    $current_name = $series['name'];
+    $series_db = $stmt->fetch();
+    $current_name = $series_db['name'];
 
     /* Check if series already exists */
     $stmt = $pdo->prepare('SELECT * FROM series WHERE name = ?');
@@ -334,7 +333,7 @@ function update_series($pdo, $series_info){
         ];
     }
     session_start();
-    if ($series_info['id'] === $_SESSION['user_id']) {
+    if ($series_db['id'] === $_SESSION['user_id']) {
         /* Update Series */
         $stmt = $pdo->prepare("UPDATE series SET name = ?, creator = ?, seasons = ?, abstract = ? WHERE series_id = ?");
         $stmt->execute([
@@ -432,19 +431,6 @@ function redirect($location){
 }
 
 /**
- * Get current user ID
- * @return bool Current user ID or False if not logged in
- */
-function get_user_id(){
-    session_start();
-    if (isset($_SESSION['user_id'])){
-        return $_SESSION['user_id'];
-    } else {
-        return False;
-    }
-}
-
-/**
  * Get the name of a user based on user id
  * @return string containing the username
  */
@@ -470,42 +456,51 @@ function register_user($pdo, $form_data){
         ];
     }
 
-    /* Check if series already exists */
-    $stmt = $pdo->prepare('SELECT * FROM users WHERE username = ?');
-    $stmt->execute([$form_data['username']]);
-    $nb_usernames = $stmt->rowCount();
-    if ($nb_usernames){
-        return [
-            'type' => 'danger',
-            'message' => 'This username already exists.'
-        ];
-    }
-
-    $hash = password_hash($form_data['password'], PASSWORD_BCRYPT);
-
-    /* Add User */
-    $stmt = $pdo->prepare("INSERT INTO users (username, password, firstname, lastname) VALUES (?, ?, ?, ?)");
-    $stmt->execute([
-        $form_data['username'],
-        $hash,
-        $form_data['firstname'],
-        $form_data['lastname']
-    ]);
-    $inserted = $stmt->rowCount();
-    if ($inserted ==  1) {
-        $stmt = $pdo->prepare('SELECT id FROM users WHERE username = ?');
+    try{
+        /* Check if series already exists */
+        $stmt = $pdo->prepare('SELECT * FROM users WHERE username = ?');
         $stmt->execute([$form_data['username']]);
-        session_start();
-        $_SESSION['user_id'] = $stmt->fetch(PDO::FETCH_ASSOC)['id'];
-        return [
-            'type' => 'success',
-            'message' => sprintf("User '%s' was added to the Database.", $form_data['username'])
-        ];
+        $nb_usernames = $stmt->rowCount();
+        if ($nb_usernames){
+            return [
+                'type' => 'danger',
+                'message' => 'This username already exists.'
+            ];
+        }
+
+        /* Creating a hash for the password */
+        $hash = password_hash($form_data['password'], PASSWORD_BCRYPT);
+
+        /* Add User */
+        $stmt = $pdo->prepare("INSERT INTO users (username, password, firstname, lastname) VALUES (?, ?, ?, ?)");
+        $stmt->execute([
+            $form_data['username'],
+            $hash,
+            $form_data['firstname'],
+            $form_data['lastname']
+        ]);
+        $inserted = $stmt->rowCount();
+        if ($inserted ==  1) {
+            $stmt = $pdo->prepare('SELECT id FROM users WHERE username = ?');
+            $stmt->execute([$form_data['username']]);
+            session_start();
+            $_SESSION['user_id'] = $stmt->fetch(PDO::FETCH_ASSOC)['id'];
+            return [
+                'type' => 'success',
+                'message' => sprintf("User '%s' was added to the Database.", $form_data['username'])
+            ];
+        }
+        else {
+            return [
+                'type' => 'danger',
+                'message' => 'There was an error. User was not added. Try it again.'
+            ];
+        }
     }
-    else {
+    catch (PDOException $e) {
         return [
             'type' => 'danger',
-            'message' => 'There was an error. User was not added. Try it again.'
+            'message' => "Database error occurred."
         ];
     }
 }
