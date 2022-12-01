@@ -95,7 +95,7 @@ elseif (new_route('/DDWT22/week2/series/', 'get')) {
     $series_id = $_GET['series_id'];
     $series_info = get_series_info($db, $series_id);
     /* Page info */
-    if ($series_info['id'] === $_SESSION['user_id']){
+    if ($_SESSION and $series_info['id'] === $_SESSION['user_id']){
         $display_buttons = True;
     }
     else{
