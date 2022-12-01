@@ -54,7 +54,7 @@ if (new_route('/DDWT22/week2/', 'get')) {
         'Home' => na('/DDWT22/week2/', True)
     ]);
     $navigation = get_navigation($template, $active_id[1]);
-    if (isset($error_msg)){$error_msg = get_error($_GET['error_msg']);}
+    if (isset($_GET['error_msg'])){$error_msg = get_error($_GET['error_msg']);}
     /* Page content */
     $page_subtitle = 'The online platform to list your favorite series';
     $page_content = 'On Series Overview you can list your favorite series. You can see the favorite series of all Series Overview users. By sharing your favorite series, you can get inspired by others and explore new series.';
