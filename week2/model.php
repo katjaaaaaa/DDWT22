@@ -316,7 +316,7 @@ function update_series($pdo, $series_info){
         ];
     }
 
-    /* Get current series name */
+    /* Get current series data */
     $stmt = $pdo->prepare('SELECT * FROM series WHERE series_id = ?');
     $stmt->execute([$series_info['series_id']]);
     $series_db = $stmt->fetch();
