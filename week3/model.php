@@ -258,3 +258,12 @@ function redirect($location){
     header(sprintf('Location: %s', $location));
     die();
 }
+
+/**
+ * Changes the content-type of http header()
+ * @param $content_type string required content type
+ * @return string required for the header()
+ */
+function http_content_type($content_type){
+    return sprintf("Content-Type: %s", $content_type);
+}
