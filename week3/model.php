@@ -267,3 +267,38 @@ function redirect($location){
 function http_content_type($content_type){
     return sprintf("Content-Type: %s", $content_type);
 }
+
+/**
+ * Returns an array with user data
+ * @return array with data or with error message
+ */
+function set_cred($username, $password){
+    if (isset($username, $password)){
+        return [
+            'username'=>$username,
+            'password'=>$password
+        ];
+    }
+    else{
+        return[
+            'type' => 'warning',
+            'message' => 'No data has been sent'
+        ];
+    }
+}
+
+function check_cred($cred){
+    if (!isset($_SERVER['PHP_AUTH_USER'])){
+        return False;
+    }
+    else {
+        if ($_SERVER['PHP_AUTH_USER'] == $cred['username']
+        and $_SERVER['PHP_AUTH_PW'] == $cred['password']) {
+            return True;
+        }
+        else{
+            return False;
+    }
+}
+
+}
