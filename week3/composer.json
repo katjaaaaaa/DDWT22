@@ -1,0 +1,15 @@
+{
+  "name": "katjaaaaaa/ddwt22_week3",
+  "description": "",
+  "minimum-stability": "stable",
+  "license": "proprietary",
+  "authors": [
+    {
+      "name": "Katja Kamyshanova",
+      "email": "e.a.kamyshanova@student.rug.nl"
+    }
+  ],
+  "require": {
+    "bramus/router": "1.5"
+  }
+}
