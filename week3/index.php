@@ -53,7 +53,7 @@ $router->mount('/api', function() use ($router, $db) {
     });
 
     /* DELETE individual series */
-    $router->delete('/series/(/d+)', function($id) use ($db) {
+    $router->delete('/series/(\d+)', function($id) use ($db) {
         $remove_feedback = remove_series($db, $id);
         echo json_encode($remove_feedback);
     });
