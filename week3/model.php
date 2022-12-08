@@ -240,7 +240,7 @@ function remove_series($pdo, $series_id){
 
 /**
  * Count the number of series listed on Series Overview
- * @param PDO $pdo Database object
+ * @param $pdo PDO Database object
  * @return mixed
  */
 function count_series($pdo){
@@ -270,6 +270,8 @@ function http_content_type($content_type){
 
 /**
  * Returns an array with user data
+ * @param $username string with username
+ * @param $password string with user's password
  * @return array with data or with error message
  */
 function set_cred($username, $password){
@@ -287,6 +289,11 @@ function set_cred($username, $password){
     }
 }
 
+/**
+ * Checks whenever the user is logged in
+ * @param $cred array with userdata
+ * @return bool when authentication has either failed or succeeded
+ */
 function check_cred($cred){
     if (!isset($_SERVER['PHP_AUTH_USER'])){
         return False;
